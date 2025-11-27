@@ -1,34 +1,26 @@
 import streamlit as st
 import time
 
-# --- 🔐 AUTHENTICATION LOGIC START ---
+# --- AUTHENTICATION LOGIC ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 def check_password():
-    # Helper to safely compare passwords
-    def password_entered():
-        if st.session_state["password_input"] == st.secrets["app_password"]:
-            st.session_state.authenticated = True
-            del st.session_state["password_input"]
-        else:
-            st.error("😕 Password incorrect")
+    if st.session_state.password_input == st.secrets["app_password"]:
+        st.session_state.authenticated = True
+        del st.session_state.password_input
+    else:
+        st.error("😕 Password incorrect")
 
-    if not st.session_state.authenticated:
-        st.title("🔒 Motor Data Portal")
-        st.write("Please log in to access the Master Data.")
-        st.text_input(
-            "Enter Password:", 
-            type="password", 
-            key="password_input", 
-            on_change=password_entered
-        )
-        st.stop()  # 🛑 This stops the app from loading ANY data until logged in
-
-# Run the check
 if not st.session_state.authenticated:
-    check_password()
-# --- 🔐 AUTHENTICATION LOGIC END ---
+    st.title("🔒 Motor Data Portal")
+    st.text_input("Enter Password to Access:", type="password", key="password_input", on_change=check_password)
+    st.stop()  # STOPS the app here. No data below this line runs!
+
+# --- YOUR MAIN APP CODE STARTS HERE ---
+# (Paste your existing code here: Sidebar, Database Config, etc.)
+st.sidebar.success("✅ Logged In")
+
 import streamlit as st
 import pandas as pd
 import json
@@ -69,9 +61,8 @@ def get_db_connection():
             port=st.secrets["postgres"]["port"],
             dbname=st.secrets["postgres"]["dbname"],
             user=st.secrets["postgres"]["user"],
-            password=st.secrets["postgres"]["password"],
-            sslmode=st.secrets["postgres"].get("sslmode", "require")
-                                )
+            password=st.secrets["postgres"]["password"]
+        )
     except Exception as e:
         st.error(f"Database Connection Error: {e}")
         return None
