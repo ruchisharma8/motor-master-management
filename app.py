@@ -1,3 +1,4 @@
+        
 import streamlit as st
 import pandas as pd
 import json
@@ -33,14 +34,19 @@ st.set_page_config(
 def get_db_connection():
     if not USE_DATABASE: return None
     try:
-        return psycopg2.connect(
+        # 👇 THIS IS THE PART THAT WAS COMMENTED OUT. IT IS NOW ACTIVE.
+        return psycopg2.connect
+        (
             host=st.secrets["postgres"]["host"],
             port=st.secrets["postgres"]["port"],
             dbname=st.secrets["postgres"]["dbname"],
             user=st.secrets["postgres"]["user"],
-            password=st.secrets["postgres"]["password"]
+            password=st.secrets["postgres"]["password"],
+            # 👇 IMPORTANT: specific fix for Neon to handle SSL
+            sslmode=st.secrets["postgres"].get("sslmode", "require")
         )
     except Exception as e:
+        # This will show the actual error on screen if connection fails
         st.error(f"Database Connection Error: {e}")
         return None
 
