@@ -57,6 +57,9 @@ CREATE TABLE rto_master (
 -- ======================================================================
 
 CREATE TABLE pincode_master (
+    -- Sorting Key (Added for Registry Display Order)
+    id SERIAL, 
+
     -- Core Identity
     pincode VARCHAR(50) PRIMARY KEY,
     
