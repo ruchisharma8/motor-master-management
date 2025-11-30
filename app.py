@@ -5,12 +5,18 @@ import time
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
+# 👇 FIX: Initialize the password key to prevent KeyError
+if "password_input" not in st.session_state:
+    st.session_state["password_input"] = ""
+
 def check_password():
-    # Helper to safely compare passwords
     def password_entered():
-        if st.session_state["password_input"] == st.secrets["app_password"]:
+        # Use .get() for extra safety, though initialization above fixes it mostly
+        entered_password = st.session_state.get("password_input", "")
+        if entered_password == st.secrets["app_password"]:
             st.session_state.authenticated = True
-            del st.session_state["password_input"]
+            # We don't delete the key anymore to avoid complexity, just clear it
+            st.session_state["password_input"] = "" 
         else:
             st.error("😕 Password incorrect")
 
@@ -23,14 +29,13 @@ def check_password():
             key="password_input", 
             on_change=password_entered
         )
-        st.stop()  # 🛑 This stops the app from loading ANY data until logged in
+        st.stop()  # 🛑 App stops here if not logged in
 
 # Run the check
 if not st.session_state.authenticated:
     check_password()
 # --- 🔐 AUTHENTICATION LOGIC END ---
 
-# --- APP --- 
 import pandas as pd
 import json
 import uuid
